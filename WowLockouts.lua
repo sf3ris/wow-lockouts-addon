@@ -69,6 +69,7 @@ function WowLockouts:ADDON_LOADED()
         AccountCharactersLockout = NS.json.decode(AccountCharactersLockout, 1, nil)
     end
     local characterLockouts = self:getCharacterLockout()
+    AccountCharactersLockout = {}
     AccountCharactersLockout[characterLockouts.character.name.."-"..characterLockouts.character.realm] = characterLockouts
 
     -- Share the player lockouts with guildies
@@ -150,7 +151,6 @@ end
 function WowLockouts:OnCommReceived(prefix, message, distribution, sender)
     local success, deserializedMessage = WowLockouts:Deserialize(message)
     if success then
-        self:Print("Received lockout from "..deserializedMessage.character.name) 
         self:AddPlayerLockout(deserializedMessage)
     end
 end

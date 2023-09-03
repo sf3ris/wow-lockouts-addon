@@ -11,14 +11,6 @@ local options = {
 	handler = WowLockouts,
 	type = "group",
 	args = {
-		msg = {
-			type = "input",
-			name = "Message",
-			desc = "The message to be displayed when you get home.",
-			usage = "<Your message>",
-			get = "GetMessage",
-			set = "SetMessage",
-		},
         showOnScreen = {
 			type = "toggle",
 			name = "Public lockouts",
@@ -68,7 +60,7 @@ function WowLockouts:ADDON_LOADED()
     if type(AccountCharactersLockout) == "string" then
         AccountCharactersLockout = NS.json.decode(AccountCharactersLockout, 1, nil)
     end
-    local characterLockouts = self:getCharacterLockout()
+    local characterLockouts = self:getCharacterLockout(true)
     AccountCharactersLockout = {}
     AccountCharactersLockout[characterLockouts.character.name.."-"..characterLockouts.character.realm] = characterLockouts
 
@@ -76,13 +68,20 @@ function WowLockouts:ADDON_LOADED()
     self:sendLockout("GUILD")
 end
 
-function WowLockouts:getCharacterLockout()
+function WowLockouts:getCharacterLockout(owned)
     local characterName, _ = UnitName("player")
     local realmName = GetRealmName()
+    local _, class, _ = UnitClass("player");
+    local _, race = UnitRace("player")
+    local guildName, _, _ = GetGuildInfo("player");
     local characterLockouts = {
         character = {
             name = characterName,
-            realm = realmName
+            realm = realmName,
+            class = class,
+            race = race,
+            guild = guildName,
+            owned = owned
         },
         lockouts = {}
     }
@@ -122,7 +121,7 @@ function WowLockouts:AddPlayerLockout(playerLockouts)
 end
 
 function WowLockouts:PLAYER_LOGOUT()
-    local characterLockouts = self:getCharacterLockout()
+    local characterLockouts = self:getCharacterLockout(true)
     AccountCharactersLockout[characterLockouts.character.name.."-"..characterLockouts.character.realm] = characterLockouts
     AccountCharactersLockout = NS.json.encode(AccountCharactersLockout, { indent = true })
 end
@@ -138,7 +137,7 @@ end
 function WowLockouts:sendLockout(channel)
     -- we dont want to decay combat performances so we are not sending packets in combat
     if not UnitAffectingCombat("player") then
-        local message = WowLockouts:Serialize(self:getCharacterLockout())
+        local message = WowLockouts:Serialize(self:getCharacterLockout(false))
         local target = nil
         -- mostly used for debug
         if channel == "WHISPER" then

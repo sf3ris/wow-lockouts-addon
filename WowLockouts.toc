@@ -3,7 +3,7 @@
 ## Title: WowLockouts
 ## Notes: My first addon
 ## Author: Wès
-## SavedVariables: AccountCharactersLockout
+## SavedVariablesPerCharacter: AccountCharactersLockout
 ## OptionalDeps: Ace3
 
 WowLockouts.lua

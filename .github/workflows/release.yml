@@ -1,0 +1,21 @@
+name: Package and release
+
+on:
+  push:
+    tags:
+      - '**'
+  workflow_dispatch:
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    environment: Default
+    steps:
+      - name: Clone project
+        uses: actions/checkout@v1
+        with:
+          fetch-depth: 20
+      - name: Package and release
+        uses: BigWigsMods/packager@v2
+        with:
+          args: -g retail
